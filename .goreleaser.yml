@@ -1,0 +1,126 @@
+before:
+  hooks:
+  - go mod download
+
+builds:
+  - id: "vinced-linux-amd64"
+    main: ./cmd/vinced
+    binary: bin/vinced
+    env:
+      - CGO_ENABLED=1
+      - CC=gcc
+      - CXX=g++
+    goos:
+      - linux
+    goarch:
+      - amd64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=vince -X github.com/cosmos/cosmos-sdk/version.AppName=vinced -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "vinced-linux-arm64"
+    main: ./cmd/vinced
+    binary: bin/vinced
+    env:
+      - CGO_ENABLED=1
+      - CC=aarch64-linux-gnu-gcc
+      - CXX=aarch64-linux-gnu-g++
+    goos:
+      - linux
+    goarch:
+      - arm64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=vince -X github.com/cosmos/cosmos-sdk/version.AppName=vinced -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  # - id: "vinced-linux-riscv64"
+  #   main: ./cmd/vinced
+  #   binary: bin/vinced
+  #   env:
+  #     - CGO_ENABLED=1
+  #     - CC=riscv64-linux-gnu-gcc
+  #     - CXX=riscv64-linux-gnu-g++
+  #   goos:
+  #     - linux
+  #   goarch:
+  #     - riscv64
+  #   flags:
+  #     - -tags=cgo
+  #   ldflags:
+  #     - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=vince -X github.com/cosmos/cosmos-sdk/version.AppName=vinced -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "vinced-windows"
+    main: ./cmd/vinced
+    binary: bin/vinced
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+    goos:
+      - windows
+    goarch:
+      - amd64
+    flags:
+      - -tags=cgo
+      - -buildmode=exe
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=vince -X github.com/cosmos/cosmos-sdk/version.AppName=vinced -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "vinced-darwin"
+    main: ./cmd/vinced
+    binary: bin/vinced
+    env:
+      - CGO_ENABLED=1
+      - CC=o64-clang
+      - CXX=o64-clang++
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    flags:
+        - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=vince -X github.com/cosmos/cosmos-sdk/version.AppName=vinced -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "vinced-darwin-arm64"
+    main: ./cmd/vinced
+    binary: bin/vinced
+    env:
+      - CGO_ENABLED=1
+      - CC=oa64-clang
+      - CXX=oa64-clang++
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=vince -X github.com/cosmos/cosmos-sdk/version.AppName=vinced -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+universal_binaries:
+  - replace: true
+archives:
+- name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    amd64: x86_64
+  format_overrides:
+    - goos: windows
+      format: zip
+  builds:
+  - vinced-darwin
+  - vinced-darwin-arm64
+  - vinced-windows
+  - vinced-linux-amd64
+  - vinced-linux-arm64
+  # - vinced-linux-riscv64 - Github actions do not support yet, but you can build directly on riscv64 arch by running make install in this directory (Go v1.18+)
+  
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+snapshot:
+  name_template: "{{ .Tag }}-next"
